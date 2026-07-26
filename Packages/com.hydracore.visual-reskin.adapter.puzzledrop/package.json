@@ -1,0 +1,14 @@
+{
+  "name": "com.hydracore.visual-reskin.adapter.puzzledrop",
+  "version": "0.1.0",
+  "displayName": "HydraCore Visual Reskin Adapter - PuzzleDrop",
+  "description": "PuzzleDrop project knowledge for HydraCore Visual Reskin.",
+  "unity": "6000.3",
+  "dependencies": {
+    "com.hydracore.visual-reskin": "0.1.0"
+  },
+  "author": {
+    "name": "HydraCore"
+  }
+}
+

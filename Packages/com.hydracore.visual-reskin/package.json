@@ -1,0 +1,21 @@
+{
+  "name": "com.hydracore.visual-reskin",
+  "version": "0.1.0",
+  "displayName": "HydraCore Visual Reskin",
+  "description": "AI-first semantic art scanning, mapping, transaction and verification infrastructure for Unity.",
+  "unity": "6000.3",
+  "dependencies": {
+    "com.unity.ugui": "2.0.0"
+  },
+  "keywords": [
+    "art",
+    "reskin",
+    "semantic",
+    "automation",
+    "ai"
+  ],
+  "author": {
+    "name": "HydraCore"
+  }
+}
+

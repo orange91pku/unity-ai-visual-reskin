@@ -1,0 +1,13 @@
+{
+  "name": "HydraCore.VisualReskin.Editor",
+  "rootNamespace": "HydraCore.VisualReskin.Editor",
+  "references": [
+    "HydraCore.VisualReskin.Runtime",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}
+

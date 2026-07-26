@@ -1,0 +1,9 @@
+{
+  "name": "HydraCore.VisualReskin.Runtime",
+  "rootNamespace": "HydraCore.VisualReskin",
+  "references": [
+    "UnityEngine.UI"
+  ],
+  "autoReferenced": true
+}
+

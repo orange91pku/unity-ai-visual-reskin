@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hydracore.dev/schemas/hydra-project.schema.json",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "displayName",
+    "adapterVersion",
+    "productionScenes",
+    "detectionRules"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "projectId": { "type": "string", "minLength": 1 },
+    "displayName": { "type": "string", "minLength": 1 },
+    "adapterVersion": { "type": "string", "minLength": 1 },
+    "productionScenes": { "type": "array", "items": { "type": "string" } },
+    "prefabRoots": { "type": "array", "items": { "type": "string" } },
+    "excludedPathSegments": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "detectionRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["priority", "semanticRole"],
+        "properties": {
+          "priority": { "type": "integer" },
+          "semanticRole": { "type": "string", "minLength": 1 },
+          "sourceSpriteName": { "type": "string" },
+          "hostNameContains": { "type": "string" },
+          "hierarchyContains": { "type": "string" },
+          "componentType": { "type": "string" }
+        }
+      }
+    },
+    "reviewSurfaces": { "type": "array" }
+  }
+}
+

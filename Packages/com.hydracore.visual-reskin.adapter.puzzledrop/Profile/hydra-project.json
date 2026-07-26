@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "projectId": "hydracore.puzzledrop",
+  "displayName": "PuzzleDrop / ChromaDrop",
+  "adapterVersion": "0.1.0",
+  "productionScenes": [
+    "Assets/Project Files/Game/Scenes/Init.unity",
+    "Assets/Project Files/Game/Scenes/Home.unity",
+    "Assets/Project Files/Game/Scenes/Game.unity"
+  ],
+  "prefabRoots": [
+    "Assets/GameObject"
+  ],
+  "excludedPathSegments": [
+    "/300Mind/",
+    "/__VendorGuiLab/",
+    "/Editor/",
+    "/Iris/",
+    "/_Recovery/",
+    "/Plugins/",
+    "/TextMesh Pro/",
+    "/Demigiant/",
+    "/DOTween/",
+    "/Graphy - Ultimate Stats Monitor/",
+    "/IngameDebugConsole/",
+    "/Samples/",
+    "/Examples/",
+    "/Demo/"
+  ],
+  "detectionRules": [
+    { "priority": 100, "semanticRole": "icon.settings", "sourceSpriteName": "bt_setting" },
+    { "priority": 100, "semanticRole": "icon.currency", "sourceSpriteName": "icon_currency_coin" },
+    { "priority": 100, "semanticRole": "status.resource", "sourceSpriteName": "slot_text_currency_03" },
+    { "priority": 100, "semanticRole": "navigation.normal", "sourceSpriteName": "bottom_bar" },
+    { "priority": 100, "semanticRole": "navigation.selected", "sourceSpriteName": "bottom_bar_ON" },
+    { "priority": 100, "semanticRole": "icon.shop", "sourceSpriteName": "icon_bottom_shop" },
+    { "priority": 100, "semanticRole": "icon.home", "sourceSpriteName": "icon_bottom_home" },
+    { "priority": 100, "semanticRole": "icon.collection", "sourceSpriteName": "icon_bottom_holes" },
+    { "priority": 100, "semanticRole": "surface.popup", "sourceSpriteName": "popup_bg" },
+    { "priority": 100, "semanticRole": "surface.popup", "sourceSpriteName": "popup_bg_01" },
+    { "priority": 100, "semanticRole": "surface.title", "sourceSpriteName": "popup_slot_title" },
+    { "priority": 100, "semanticRole": "surface.item-slot", "sourceSpriteName": "popup_bg_slot_01" },
+    { "priority": 100, "semanticRole": "surface.media", "sourceSpriteName": "image_bg_01" },
+    { "priority": 100, "semanticRole": "progress.fill", "sourceSpriteName": "progress_bar_01" },
+    { "priority": 100, "semanticRole": "icon.video", "sourceSpriteName": "icon_watch_video_02" },
+    { "priority": 100, "semanticRole": "button.purchase", "sourceSpriteName": "bt_green_shop" },
+    { "priority": 100, "semanticRole": "surface.offer-card", "sourceSpriteName": "popup_pack_01" },
+    { "priority": 100, "semanticRole": "surface.offer-card", "sourceSpriteName": "popup_pack_02" },
+    { "priority": 100, "semanticRole": "surface.offer-card", "sourceSpriteName": "popup_pack_03" },
+    { "priority": 100, "semanticRole": "surface.offer-card", "sourceSpriteName": "popup_pack_04" },
+    { "priority": 100, "semanticRole": "surface.offer-card", "sourceSpriteName": "popup_pack_05" },
+    { "priority": 100, "semanticRole": "surface.item-slot", "sourceSpriteName": "slot_pack_01" },
+    { "priority": 100, "semanticRole": "surface.title", "sourceSpriteName": "top_bar" },
+    { "priority": 50, "semanticRole": "button.close", "hostNameContains": "Close" },
+    { "priority": 50, "semanticRole": "icon.settings", "hostNameContains": "Settings" },
+    { "priority": 50, "semanticRole": "icon.video", "hostNameContains": "VideoBar" }
+  ],
+  "reviewSurfaces": [
+    { "id": "loading", "scenePath": "Assets/Project Files/Game/Scenes/Init.unity", "entryAction": "scene", "width": 720, "height": 1280 },
+    { "id": "home", "scenePath": "Assets/Project Files/Game/Scenes/Home.unity", "entryAction": "play", "width": 720, "height": 1280 },
+    { "id": "shop", "scenePath": "Assets/Project Files/Game/Scenes/Home.unity", "entryAction": "HomeNavigationController.GoShop", "width": 720, "height": 1280 },
+    { "id": "settings-popup", "scenePath": "Assets/Project Files/Game/Scenes/Home.unity", "entryAction": "UISettings.Show", "width": 720, "height": 1280 },
+    { "id": "gameplay", "scenePath": "Assets/Project Files/Game/Scenes/Game.unity", "entryAction": "normal-navigation-only", "width": 720, "height": 1280 }
+  ]
+}
+
