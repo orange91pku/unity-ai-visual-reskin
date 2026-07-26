@@ -25,6 +25,29 @@ foreach ($packageRoot in $packageRoots) {
 $themeFiles = Get-ChildItem -LiteralPath (
 	Join-Path $repositoryRoot "Packages"
 ) -Filter "hydra-theme.json" -File -Recurse
+$metaByGuid = @{}
+$metaFiles = Get-ChildItem -LiteralPath (
+	Join-Path $repositoryRoot "Packages"
+) -Filter "*.meta" -File -Recurse
+foreach ($metaFile in $metaFiles) {
+	$metaText = Get-Content -Raw -LiteralPath $metaFile.FullName
+	$match = [regex]::Match(
+		$metaText,
+		"(?m)^guid:\s*([a-fA-F0-9]{32})\s*$"
+	)
+	if (-not $match.Success) {
+		throw "Unity metadata has no valid GUID: $($metaFile.FullName)"
+	}
+	$guid = $match.Groups[1].Value.ToLowerInvariant()
+	if ($metaByGuid.ContainsKey($guid)) {
+		throw "Duplicate Unity GUID $guid in $($metaFile.FullName)"
+	}
+	$metaByGuid[$guid] = [pscustomobject]@{
+		path = $metaFile.FullName
+		content = $metaText
+	}
+}
+
 $themeIds = @{}
 foreach ($themeFile in $themeFiles) {
 	$theme = Get-Content -Raw -LiteralPath $themeFile.FullName |
@@ -44,6 +67,15 @@ foreach ($themeFile in $themeFiles) {
 		$roles[$asset.semanticRole] = $true
 		if ($asset.assetGuid -notmatch "^[a-fA-F0-9]{32}$") {
 			throw "Invalid asset GUID for $($asset.semanticRole)"
+		}
+		$assetGuid = $asset.assetGuid.ToLowerInvariant()
+		if (-not $metaByGuid.ContainsKey($assetGuid)) {
+			throw "Theme asset GUID is not packaged: $assetGuid"
+		}
+		$spritePattern = "(?m)^\s*name:\s*" +
+			[regex]::Escape($asset.spriteName) + "\s*$"
+		if ($metaByGuid[$assetGuid].content -notmatch $spritePattern) {
+			throw "Sprite $($asset.spriteName) is absent from packaged metadata."
 		}
 	}
 }
@@ -86,4 +118,5 @@ if ($missingMeta.Count -gt 0) {
 	packages = $packageRoots.Count
 	themes = $themeFiles.Count
 	projectAdapters = $projectFiles.Count
+	unityGuids = $metaByGuid.Count
 }
