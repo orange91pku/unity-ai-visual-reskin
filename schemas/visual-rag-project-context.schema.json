@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hydracore.dev/schemas/visual-rag-project-context.schema.json",
+  "title": "Project Brain Visual Context v1",
+  "type": "object",
+  "required": ["schema", "projectId", "indexFingerprint", "usages"],
+  "properties": {
+    "schema": {
+      "const": "hydracore.project-brain.visual-context/v1"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "indexFingerprint": {
+      "type": "string",
+      "minLength": 16
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["unityGuid", "relativePath"],
+        "properties": {
+          "unityGuid": { "type": "string", "pattern": "^[0-9a-fA-F]{32}$" },
+          "relativePath": { "type": "string" },
+          "contentHash": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "usages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["unityGuid", "ownerPath"],
+        "properties": {
+          "unityGuid": { "type": "string", "pattern": "^[0-9a-fA-F]{32}$" },
+          "fileId": { "oneOf": [{ "type": "string" }, { "type": "integer" }] },
+          "ownerPath": { "type": "string" },
+          "hierarchyPath": { "type": ["string", "null"] },
+          "componentType": { "type": ["string", "null"] },
+          "referenceCount": { "type": "integer", "minimum": 1 }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

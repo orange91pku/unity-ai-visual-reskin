@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hydracore.dev/schemas/visual-rag-search-result.schema.json",
+  "title": "Visual RAG Search Result",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "assetId",
+      "sourceKind",
+      "sourceId",
+      "relativePath",
+      "score",
+      "scores",
+      "dimensions",
+      "palette"
+    ],
+    "properties": {
+      "assetId": { "type": "string", "pattern": "^vrag_[0-9a-f]{32}$" },
+      "sourceKind": { "enum": ["theme", "project"] },
+      "sourceId": { "type": "string" },
+      "semanticRole": { "type": ["string", "null"] },
+      "unityGuid": { "type": ["string", "null"] },
+      "spriteName": { "type": ["string", "null"] },
+      "relativePath": { "type": "string" },
+      "score": { "type": "number" },
+      "scores": { "type": "object" },
+      "dimensions": {
+        "type": "array",
+        "prefixItems": [
+          { "type": "integer", "minimum": 1 },
+          { "type": "integer", "minimum": 1 }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "palette": { "type": "array", "items": { "type": "string" } }
+    },
+    "additionalProperties": true
+  }
+}

@@ -47,6 +47,19 @@ A Project Adapter owns game knowledge:
 
 Adapters may depend on game assemblies. Theme Packs never may.
 
+### Visual RAG service
+
+Visual RAG is deployed separately from the Unity package. It owns:
+
+- visual and semantic indexes;
+- stable asset identities and content hashes;
+- Project Brain usage evidence;
+- local search and candidate ranking;
+- pending mapping proposals and review evidence.
+
+It does not own binary art and cannot mutate a Unity project. The Unity Core
+remains the only apply boundary.
+
 ## Rule precedence
 
 Semantic classification is deterministic:
@@ -58,6 +71,13 @@ Semantic classification is deterministic:
 5. AI suggestion requiring human approval.
 
 AI output is a proposed mapping, never an unreviewed mutation instruction.
+
+```text
+Project Brain --versioned context--> Visual RAG --pending proposals--> human review
+     ^                                                        |
+     |                                                        v
+Unity graph/evidence <--verify report-- ReVisualReskin Core <--approved manifest
+```
 
 ## Safety state machine
 

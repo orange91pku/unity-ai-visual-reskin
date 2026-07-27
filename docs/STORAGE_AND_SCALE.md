@@ -46,7 +46,10 @@ Store:
 - human and AI review scores.
 
 The database points to object-storage hashes and package versions. It does not
-become the authoritative home of binary art.
+become the authoritative home of binary art. The first implementation is
+SQLite and local-first. Its public contract is versioned JSON, so a shared
+PostgreSQL/vector service can replace storage later without coupling Unity to
+the database.
 
 ### re-api
 

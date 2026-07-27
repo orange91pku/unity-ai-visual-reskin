@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hydracore.dev/schemas/visual-rag-mapping-proposals.schema.json",
+  "title": "Visual RAG Mapping Proposals v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "projectId",
+    "themeId",
+    "createdUtc",
+    "mutationAuthorized",
+    "proposals"
+  ],
+  "properties": {
+    "schema": { "const": "hydracore.visual-rag.mapping-proposals/v1" },
+    "projectId": { "type": "string" },
+    "themeId": { "type": "string" },
+    "createdUtc": { "type": "string", "format": "date-time" },
+    "mutationAuthorized": { "const": false },
+    "proposals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "proposalId",
+          "source",
+          "destination",
+          "score",
+          "scoreBreakdown",
+          "technicalConstraints",
+          "evidence",
+          "approval"
+        ],
+        "properties": {
+          "proposalId": { "type": "string" },
+          "source": {
+            "type": "object",
+            "required": ["assetId", "relativePath", "contentHash"]
+          },
+          "destination": {
+            "type": "object",
+            "required": ["assetId", "themeId", "semanticRole", "relativePath"]
+          },
+          "score": { "type": "number", "minimum": -1, "maximum": 1 },
+          "approval": {
+            "type": "object",
+            "required": ["status", "required"],
+            "properties": {
+              "status": { "const": "pending" },
+              "required": { "const": true }
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}

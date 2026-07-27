@@ -11,7 +11,9 @@ The repository deliberately separates three independently versioned layers:
    exclusion, and legacy-name knowledge.
 
 This prevents a growing theme library from leaking project-specific names and
-GUIDs into the engine.
+GUIDs into the engine. A fourth, separately deployable component,
+`revisual_rag`, indexes visual features and semantic evidence without owning or
+mutating Unity assets.
 
 ## Repository layout
 
@@ -23,16 +25,32 @@ Packages/
 docs/
 schemas/
 tools/
+revisual_rag/
+  local Visual RAG catalog, scanner, retrieval and Project Brain adapter
 ```
 
 ## Current milestone
 
-`v0.2.0-portability` adds the generic scanner, deterministic matcher,
-transactional apply, automatic technical verification and exact rollback.
-The packages passed a clean Unity `6000.3.10f1` fixture covering dry-run,
-apply, idempotent no-op, unchanged Theme Pack metadata, zero Missing Script,
-and SHA-256 scene restoration.
+`v0.3.0-visual-rag` adds a local-first SQLite visual catalog, per-sprite atlas
+feature extraction, semantic and image retrieval, Unity reference evidence,
+stable identities, Project Brain context ingestion, and review-only mapping
+proposals. It does not grant mutation authority. Approved mappings still pass
+through the Core dry-run, backup, apply, Unity gate and rollback workflow.
 
 Start with [Architecture](docs/ARCHITECTURE.md) and
+[Visual RAG](docs/VISUAL_RAG.md), then
 [Theme authoring](docs/THEME_PACK_AUTHORING.md). See
 [Portability test](docs/PORTABILITY_TEST.md) for the verified gate sequence.
+
+## Visual RAG quick start
+
+```powershell
+python -m revisual_rag --db .revisual/visual-rag.sqlite3 init
+python -m revisual_rag --db .revisual/visual-rag.sqlite3 ingest-theme `
+  --manifest Packages/com.hydracore.visual-reskin.theme.300mind/Theme/hydra-theme.json
+python -m revisual_rag --db .revisual/visual-rag.sqlite3 search `
+  --text "rounded popup background" --source-kind theme --limit 10
+```
+
+The database contains metadata and vectors only. Art binaries remain in
+versioned Theme Packs or immutable object storage.

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0-visual-rag
+
+- Added a separate local-first Visual RAG Python package and CLI.
+- Added SQLite storage for theme/project assets, vectors, Unity usage evidence,
+  mapping proposals and review evidence.
+- Added deterministic per-sprite atlas extraction from Unity `.meta` rects.
+- Added visual feature, palette, geometry, alpha, edge and perceptual-hash
+  extraction.
+- Added semantic text, image and hybrid retrieval with explainable score parts.
+- Added read-only Unity project ingestion and versioned Project Brain context.
+- Added pending-only mapping proposals that cannot authorize mutation.
+- Added JSON schemas and synthetic automated tests.
+
 ## 0.2.0-portability
 
 - Added deterministic scene/prefab scanning and semantic rule matching.
