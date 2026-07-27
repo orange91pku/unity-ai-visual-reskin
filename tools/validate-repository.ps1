@@ -1,6 +1,41 @@
 $ErrorActionPreference = "Stop"
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
+$releaseVersion = (
+	Get-Content -Raw -LiteralPath (Join-Path $repositoryRoot "VERSION")
+).Trim()
+if ($releaseVersion -notmatch "^\d+\.\d+\.\d+$") {
+	throw "VERSION is not a release SemVer: $releaseVersion"
+}
+
+$pyprojectText = Get-Content -Raw -LiteralPath (
+	Join-Path $repositoryRoot "pyproject.toml"
+)
+$pyprojectVersionMatch = [regex]::Match(
+	$pyprojectText,
+	'(?m)^version\s*=\s*"([^"]+)"\s*$'
+)
+if (
+	-not $pyprojectVersionMatch.Success -or
+	$pyprojectVersionMatch.Groups[1].Value -ne $releaseVersion
+) {
+	throw "pyproject.toml version must equal VERSION $releaseVersion."
+}
+
+$pythonInitText = Get-Content -Raw -LiteralPath (
+	Join-Path $repositoryRoot "revisual_rag/__init__.py"
+)
+$pythonVersionMatch = [regex]::Match(
+	$pythonInitText,
+	'(?m)^__version__\s*=\s*"([^"]+)"\s*$'
+)
+if (
+	-not $pythonVersionMatch.Success -or
+	$pythonVersionMatch.Groups[1].Value -ne $releaseVersion
+) {
+	throw "Python __version__ must equal VERSION $releaseVersion."
+}
+
 $packageRoots = Get-ChildItem -LiteralPath (
 	Join-Path $repositoryRoot "Packages"
 ) -Directory
@@ -18,6 +53,16 @@ foreach ($packageRoot in $packageRoots) {
 	$package = Get-Content -Raw -LiteralPath $packagePath | ConvertFrom-Json
 	if ($packageNames.ContainsKey($package.name)) {
 		throw "Duplicate package name: $($package.name)"
+	}
+	if ($package.version -ne $releaseVersion) {
+		throw "Package $($package.name) must use version $releaseVersion."
+	}
+	if (
+		$null -ne $package.dependencies -and
+		$null -ne $package.dependencies."com.hydracore.visual-reskin" -and
+		$package.dependencies."com.hydracore.visual-reskin" -ne $releaseVersion
+	) {
+		throw "Package $($package.name) must depend on Core $releaseVersion."
 	}
 	$packageNames[$package.name] = $true
 }
@@ -59,6 +104,9 @@ foreach ($themeFile in $themeFiles) {
 	if ($theme.schemaVersion -ne 1) {
 		throw "Unsupported theme schema in $($themeFile.FullName)"
 	}
+	if ($theme.version -ne $releaseVersion) {
+		throw "Theme $($theme.themeId) must use version $releaseVersion."
+	}
 	if ($themeIds.ContainsKey($theme.themeId)) {
 		throw "Duplicate themeId: $($theme.themeId)"
 	}
@@ -93,6 +141,9 @@ foreach ($projectFile in $projectFiles) {
 	if ($project.schemaVersion -ne 1) {
 		throw "Unsupported project schema in $($projectFile.FullName)"
 	}
+	if ($project.adapterVersion -ne $releaseVersion) {
+		throw "Project adapter $($project.projectId) must use version $releaseVersion."
+	}
 	foreach ($rule in $project.detectionRules) {
 		$selectorCount = @(
 			$rule.sourceSpriteName,
@@ -119,6 +170,7 @@ if ($missingMeta.Count -gt 0) {
 
 [pscustomobject]@{
 	status = "pass"
+	releaseVersion = $releaseVersion
 	packages = $packageRoots.Count
 	themes = $themeFiles.Count
 	projectAdapters = $projectFiles.Count

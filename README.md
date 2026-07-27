@@ -97,31 +97,57 @@ llms.txt               Machine-oriented documentation index
 ## Requirements
 
 - Unity `6000.3` for the verified Unity package baseline;
-- Python `3.10+`;
-- PowerShell 7 for the repository validator;
-- Git;
+- Git `2.14+` available on `PATH` for Unity Package Manager Git installs;
 - a Unity project using text serialization for full YAML evidence;
+- optionally, Python `3.10+` for the Visual RAG service;
 - optionally, Unity AI Project Brain for exact hierarchy/component usage.
 
-## Quick start
+## Install from Unity Package Manager
 
-Clone and install the Python service:
+Users do **not** need to clone this repository.
+
+In Unity, open **Window → Package Management → Package Manager**, select
+**Install package from Git URL**, and paste:
+
+```text
+https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin#v0.4.1
+```
+
+This installs the Core Editor/runtime package pinned to release `v0.4.1`.
+
+Install the optional sample Theme Pack after Core:
+
+```text
+https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin.theme.300mind#v0.4.1
+```
+
+Teams can pin both dependencies directly in `Packages/manifest.json`:
+
+```json
+{
+  "dependencies": {
+    "com.hydracore.visual-reskin": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin#v0.4.1",
+    "com.hydracore.visual-reskin.theme.300mind": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin.theme.300mind#v0.4.1"
+  }
+}
+```
+
+See the full [UPM installation guide](docs/UPM_INSTALL.md) for updates,
+uninstall order, troubleshooting and Project Adapter guidance.
+
+## Optional Visual RAG service
+
+The Unity package works without cloning the repository. Developers who also
+want the local Visual RAG CLI can install the tagged Python package directly
+from Git:
 
 ```bash
-git clone https://github.com/orange91pku/unity-ai-visual-reskin.git
-cd unity-ai-visual-reskin
-python -m pip install -e .
+python -m pip install \
+  "revisual-rag @ git+https://github.com/orange91pku/unity-ai-visual-reskin.git@v0.4.1"
 python -m revisual_rag --db .revisual/visual-rag.sqlite3 init
 ```
 
-Index the bundled example Theme Pack:
-
-```bash
-python -m revisual_rag --db .revisual/visual-rag.sqlite3 ingest-theme \
-  --manifest Packages/com.hydracore.visual-reskin.theme.300mind/Theme/hydra-theme.json
-```
-
-Index a Unity project without Project Brain:
+Index a project without Project Brain:
 
 ```bash
 python -m revisual_rag --db .revisual/visual-rag.sqlite3 ingest-project \
@@ -130,10 +156,10 @@ python -m revisual_rag --db .revisual/visual-rag.sqlite3 ingest-project \
 ```
 
 This fallback reads Unity YAML references. For hierarchy, component and
-property-level evidence, use the
+property-level evidence, follow the
 [Project Brain integration guide](docs/PROJECT_BRAIN_BRIDGE.md).
 
-Generate safe-default review proposals:
+Generate safe-default review proposals after ingesting a Theme Pack:
 
 ```bash
 python -m revisual_rag --db .revisual/visual-rag.sqlite3 propose \
@@ -203,6 +229,7 @@ is documented in [Portability test](docs/PORTABILITY_TEST.md).
 
 ## Documentation
 
+- [Install with Unity Package Manager](docs/UPM_INSTALL.md)
 - [Connect Unity AI Project Brain](docs/PROJECT_BRAIN_BRIDGE.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Visual RAG](docs/VISUAL_RAG.md)

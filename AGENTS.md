@@ -7,10 +7,11 @@ replacement.
 ## Read first
 
 1. `README.md`
-2. `docs/ARCHITECTURE.md`
-3. `docs/PROJECT_BRAIN_BRIDGE.md`
-4. `docs/VISUAL_RAG.md`
-5. `docs/RASTER_TRANSACTION.md`
+2. `docs/UPM_INSTALL.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/PROJECT_BRAIN_BRIDGE.md`
+5. `docs/VISUAL_RAG.md`
+6. `docs/RASTER_TRANSACTION.md`
 
 Machine contracts are under `schemas/`. Treat them as authoritative.
 
@@ -81,6 +82,7 @@ For production-project changes, require:
 ## Useful queries for an AI
 
 - Architecture ownership: `docs/ARCHITECTURE.md`
+- UPM distribution: `docs/UPM_INSTALL.md`
 - Project Brain integration: `docs/PROJECT_BRAIN_BRIDGE.md`
 - Proposal safety: `revisual_rag/retrieval.py`
 - Unity identity transaction: `revisual_rag/raster_transaction.py`

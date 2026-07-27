@@ -1,6 +1,6 @@
 {
   "name": "com.hydracore.visual-reskin",
-  "version": "0.2.0",
+  "version": "0.4.1",
   "displayName": "HydraCore Visual Reskin",
   "description": "AI-first semantic art scanning, mapping, transaction and verification infrastructure for Unity.",
   "unity": "6000.3",

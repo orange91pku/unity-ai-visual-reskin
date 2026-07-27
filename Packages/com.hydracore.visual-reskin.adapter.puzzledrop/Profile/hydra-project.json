@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "projectId": "hydracore.puzzledrop",
   "displayName": "PuzzleDrop / ChromaDrop",
-  "adapterVersion": "0.2.0",
+  "adapterVersion": "0.4.1",
   "productionScenes": [
     "Assets/Project Files/Game/Scenes/Init.unity",
     "Assets/Project Files/Game/Scenes/Home.unity",

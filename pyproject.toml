@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "revisual-rag"
-version = "0.4.0"
+version = "0.4.1"
 description = "Local-first Visual RAG catalog and retrieval engine for ReVisualReskin."
 readme = "README.md"
 requires-python = ">=3.10"

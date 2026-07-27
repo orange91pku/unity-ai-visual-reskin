@@ -13,6 +13,7 @@ https://github.com/orange91pku/unity-ai-project-brain
 
 - README.md: public overview, quick start and safety model
 - AGENTS.md: coding-agent boundaries and validation
+- docs/UPM_INSTALL.md: no-clone tagged Git installation for Unity Package Manager
 - docs/ARCHITECTURE.md: Core / Theme Pack / Adapter / Visual RAG ownership
 - docs/PROJECT_BRAIN_BRIDGE.md: complete two-repository integration workflow
 - docs/VISUAL_RAG.md: catalog, retrieval and scaling
