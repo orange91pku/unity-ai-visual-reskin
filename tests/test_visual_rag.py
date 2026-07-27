@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
@@ -11,6 +12,11 @@ from revisual_rag.features import extract_image_features
 from revisual_rag.identity import stable_asset_id
 from revisual_rag.ingest import ingest_project, ingest_theme
 from revisual_rag.retrieval import propose_mappings, search
+from revisual_rag.raster_transaction import (
+    apply_candidate,
+    materialize_candidate,
+    rollback_transaction,
+)
 from revisual_rag.store import VisualRagStore
 from revisual_rag.unity_meta import parse_sprite_file_ids, parse_sprite_rects
 
@@ -18,6 +24,8 @@ from revisual_rag.unity_meta import parse_sprite_file_ids, parse_sprite_rects
 GUID = "0123456789abcdef0123456789abcdef"
 PROJECT_GUID = "fedcba9876543210fedcba9876543210"
 WIDE_GUID = "11111111111111111111111111111111"
+UNUSED_GUID = "22222222222222222222222222222222"
+EDITOR_GUID = "33333333333333333333333333333333"
 
 
 def make_png(path: Path, color: tuple[int, int, int, int], size=(64, 64)) -> None:
@@ -112,6 +120,49 @@ class VisualRagTests(unittest.TestCase):
         self.assertFalse(proposal["mutationAuthorized"])
         self.assertEqual("pending", proposal["proposals"][0]["approval"]["status"])
 
+    def test_proposal_excludes_unreferenced_and_editor_assets_by_default(self) -> None:
+        ingest_theme(self.store, self._theme())
+        project = self._project()
+
+        unused = project / "Assets" / "UI" / "old_primary_button_unused.png"
+        make_png(unused, (15, 150, 230, 255), (80, 60))
+        Path(str(unused) + ".meta").write_text(
+            f"fileFormatVersion: 2\nguid: {UNUSED_GUID}\n", encoding="utf-8"
+        )
+
+        editor = project / "Assets" / "ThirdParty" / "Editor" / "old_primary_button.png"
+        make_png(editor, (15, 150, 230, 255), (80, 60))
+        Path(str(editor) + ".meta").write_text(
+            f"fileFormatVersion: 2\nguid: {EDITOR_GUID}\n", encoding="utf-8"
+        )
+        scene = project / "Assets" / "Scenes" / "Home.unity"
+        with scene.open("a", encoding="utf-8") as stream:
+            stream.write(
+                f"m_EditorIcon: {{fileID: 21300000, guid: {EDITOR_GUID}, type: 3}}\n"
+            )
+
+        ingest_project(self.store, project, "test.project")
+        safe = propose_mappings(
+            self.store, "test.project", "test.theme", limit=20
+        )["proposals"]
+        self.assertEqual(
+            [PROJECT_GUID],
+            [item["source"]["unityGuid"] for item in safe],
+        )
+
+        broad = propose_mappings(
+            self.store,
+            "test.project",
+            "test.theme",
+            limit=20,
+            include_unreferenced=True,
+            include_editor_assets=True,
+        )["proposals"]
+        self.assertEqual(
+            {PROJECT_GUID, UNUSED_GUID, EDITOR_GUID},
+            {item["source"]["unityGuid"] for item in broad},
+        )
+
     def test_visual_similarity_prefers_same_art(self) -> None:
         manifest = self._theme()
         ingest_theme(self.store, manifest)
@@ -184,6 +235,83 @@ TextureImporter:
     def test_database_integrity(self) -> None:
         self.store.initialize()
         self.assertTrue(self.store.integrity()["ok"])
+
+    def test_raster_transaction_preserves_unity_identity_and_rolls_back(self) -> None:
+        project = self._project()
+        source = project / "Assets" / "UI" / "old_primary_button.png"
+        source_meta = Path(str(source) + ".meta")
+        source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+        meta_hash = hashlib.sha256(source_meta.read_bytes()).hexdigest()
+
+        theme_root = self.root / "theme-atlas"
+        atlas = theme_root / "Art" / "atlas.png"
+        atlas.parent.mkdir(parents=True)
+        atlas_image = Image.new("RGBA", (40, 40), (0, 0, 0, 0))
+        atlas_draw = ImageDraw.Draw(atlas_image)
+        atlas_draw.rectangle((10, 10, 29, 29), fill=(220, 40, 80, 255))
+        atlas_image.save(atlas)
+
+        proposal_id = "vrmap_transaction_test"
+        proposal_file = self.root / "proposal.json"
+        proposal_file.write_text(
+            json.dumps(
+                {
+                    "projectId": "test.project",
+                    "themeId": "test.theme",
+                    "proposals": [
+                        {
+                            "proposalId": proposal_id,
+                            "source": {
+                                "relativePath": "Assets/UI/old_primary_button.png",
+                                "contentHash": source_hash,
+                                "unityGuid": PROJECT_GUID,
+                            },
+                            "destination": {
+                                "relativePath": "Art/atlas.png",
+                                "spriteName": "settings",
+                                "semanticRole": "icon.settings",
+                            },
+                            "technicalConstraints": {
+                                "spriteRect": {
+                                    "x": 10,
+                                    "y": 10,
+                                    "width": 20,
+                                    "height": 20,
+                                }
+                            },
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        candidate = materialize_candidate(
+            proposal_file,
+            proposal_id,
+            project,
+            theme_root,
+            self.root / "candidates",
+        )
+        self.assertEqual([80, 60], candidate["candidate"]["dimensions"])
+        self.assertEqual(
+            candidate["source"]["alphaSha256"],
+            candidate["candidate"]["alphaSha256"],
+        )
+
+        applied = apply_candidate(
+            Path(candidate["manifest"]),
+            proposal_id,
+            project,
+            self.root / "transactions",
+        )
+        self.assertEqual("applied", applied["state"])
+        self.assertTrue(all(applied["invariants"].values()))
+        self.assertEqual(meta_hash, applied["post"]["metaSha256"])
+
+        rolled_back = rollback_transaction(Path(applied["transaction"]))
+        self.assertEqual("rolled_back", rolled_back["state"])
+        self.assertEqual(source_hash, rolled_back["restored"]["imageSha256"])
 
     def test_project_brain_context_preserves_distinct_hierarchy_usage(self) -> None:
         project = self._project()

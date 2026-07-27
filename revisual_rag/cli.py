@@ -6,6 +6,11 @@ import sys
 from pathlib import Path
 
 from .ingest import ingest_project, ingest_theme
+from .raster_transaction import (
+    apply_candidate,
+    materialize_candidate,
+    rollback_transaction,
+)
 from .retrieval import propose_mappings, search
 from .store import VisualRagStore
 
@@ -46,6 +51,37 @@ def build_parser() -> argparse.ArgumentParser:
     mapping.add_argument("--role-prefix")
     mapping.add_argument("--limit", type=int, default=100)
     mapping.add_argument("--output", type=Path)
+    mapping.add_argument(
+        "--include-unreferenced",
+        action="store_true",
+        help="Include project images with no serialized Unity usage (unsafe for automatic apply).",
+    )
+    mapping.add_argument(
+        "--include-editor-assets",
+        action="store_true",
+        help="Include images below an Editor folder (unsafe for game-art reskin batches).",
+    )
+
+    materialize = commands.add_parser("materialize-raster")
+    materialize.add_argument("--proposal-file", type=Path, required=True)
+    materialize.add_argument("--proposal-id", required=True)
+    materialize.add_argument("--project-root", type=Path, required=True)
+    materialize.add_argument("--theme-root", type=Path, required=True)
+    materialize.add_argument("--output-dir", type=Path, required=True)
+    materialize.add_argument(
+        "--allow-alpha-change",
+        action="store_true",
+        help="Do not preserve the source alpha mask (unsafe for tight meshes).",
+    )
+
+    apply = commands.add_parser("apply-raster")
+    apply.add_argument("--candidate-manifest", type=Path, required=True)
+    apply.add_argument("--approve", required=True)
+    apply.add_argument("--project-root", type=Path, required=True)
+    apply.add_argument("--backup-root", type=Path, required=True)
+
+    rollback = commands.add_parser("rollback-raster")
+    rollback.add_argument("--transaction", type=Path, required=True)
 
     commands.add_parser("stats")
     commands.add_parser("validate")
@@ -82,9 +118,29 @@ def main(argv: list[str] | None = None) -> int:
                 arguments.theme_id,
                 arguments.role_prefix,
                 arguments.limit,
+                include_unreferenced=arguments.include_unreferenced,
+                include_editor_assets=arguments.include_editor_assets,
             )
             _emit(result, arguments.output)
             return 0
+        elif arguments.command == "materialize-raster":
+            result = materialize_candidate(
+                arguments.proposal_file,
+                arguments.proposal_id,
+                arguments.project_root,
+                arguments.theme_root,
+                arguments.output_dir,
+                preserve_alpha=not arguments.allow_alpha_change,
+            )
+        elif arguments.command == "apply-raster":
+            result = apply_candidate(
+                arguments.candidate_manifest,
+                arguments.approve,
+                arguments.project_root,
+                arguments.backup_root,
+            )
+        elif arguments.command == "rollback-raster":
+            result = rollback_transaction(arguments.transaction)
         elif arguments.command == "stats":
             result = store.stats()
         else:

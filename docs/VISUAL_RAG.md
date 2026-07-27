@@ -63,7 +63,10 @@ python -m revisual_rag --db .revisual/visual-rag.sqlite3 propose `
 ```
 
 `propose` always emits `mutationAuthorized: false` and every proposal starts at
-`approval.status: pending`.
+`approval.status: pending`. Safe defaults exclude images with zero serialized
+Unity references and every image below an `Editor` folder. Discovery workflows
+may opt back in with `--include-unreferenced` or `--include-editor-assets`, but
+those flags are not suitable for an automatic game-art apply batch.
 
 ## Safety boundary
 

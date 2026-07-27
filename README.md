@@ -31,15 +31,18 @@ revisual_rag/
 
 ## Current milestone
 
-`v0.3.0-visual-rag` adds a local-first SQLite visual catalog, per-sprite atlas
+`v0.4.0` adds a local-first SQLite visual catalog, per-sprite atlas
 feature extraction, semantic and image retrieval, Unity reference evidence,
-stable identities, Project Brain context ingestion, and review-only mapping
-proposals. It does not grant mutation authority. Approved mappings still pass
-through the Core dry-run, backup, apply, Unity gate and rollback workflow.
+stable identities, Project Brain context ingestion, review-only mapping
+proposals, and approval-gated raster transactions. Raster apply preserves the
+Unity `.meta`, GUID, dimensions, serialized-reference count and—by default—the
+source alpha mask required by tight Sprite meshes.
 
 Start with [Architecture](docs/ARCHITECTURE.md) and
 [Visual RAG](docs/VISUAL_RAG.md), then
-[Theme authoring](docs/THEME_PACK_AUTHORING.md). See
+[Theme authoring](docs/THEME_PACK_AUTHORING.md). The
+[automation findings](docs/HUNGRYANTS_AUTOMATION_FINDINGS.md) record the
+production-project regression evidence and remaining runner work. See
 [Portability test](docs/PORTABILITY_TEST.md) for the verified gate sequence.
 
 ## Visual RAG quick start
@@ -54,3 +57,31 @@ python -m revisual_rag --db .revisual/visual-rag.sqlite3 search `
 
 The database contains metadata and vectors only. Art binaries remain in
 versioned Theme Packs or immutable object storage.
+
+## Safe raster pilot
+
+Every mutation is split into two explicit stages. Materialization only creates
+a preview outside `Assets`; apply requires the exact proposal ID as approval.
+
+```powershell
+python -m revisual_rag --db .revisual/visual-rag.sqlite3 materialize-raster `
+  --proposal-file .revisual/mapping-proposals.json `
+  --proposal-id vrmap_EXACT_ID `
+  --project-root D:/UnityProject `
+  --theme-root Packages/com.hydracore.visual-reskin.theme.300mind `
+  --output-dir .revisual/candidates
+
+python -m revisual_rag --db .revisual/visual-rag.sqlite3 apply-raster `
+  --candidate-manifest .revisual/candidates/vrmap_EXACT_ID-candidate.json `
+  --approve vrmap_EXACT_ID `
+  --project-root D:/UnityProject `
+  --backup-root .revisual/transactions
+```
+
+If a post-apply invariant fails, apply restores the original image and `.meta`
+automatically. A successful transaction can still be reversed exactly:
+
+```powershell
+python -m revisual_rag rollback-raster `
+  --transaction .revisual/transactions/TRANSACTION_ID/transaction.json
+```

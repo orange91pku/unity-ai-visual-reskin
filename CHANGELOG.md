@@ -42,3 +42,11 @@
 - Added the first 300Mind theme pack.
 - Added the PuzzleDrop adapter and production-scene scope.
 - Documented migration, authoring, storage, versioning, and safety gates.
+# 0.4.0
+
+- Added approval-gated raster materialization, transactional apply, and exact rollback.
+- Added Unity identity gates for `.meta`, GUID, dimensions, alpha masks, and serialized reference counts.
+- Added `setting -> settings` semantic normalization for conservative icon matching.
+- Excluded unreferenced and Editor-only images from safe-default mapping proposals,
+  with explicit discovery overrides and regression coverage.
+- Documented Windows/Unity automation findings from the HungryAnts validation.

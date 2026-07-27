@@ -81,6 +81,9 @@ def propose_mappings(
     theme_id: str,
     role_prefix: str | None = None,
     limit: int = 100,
+    *,
+    include_unreferenced: bool = False,
+    include_editor_assets: bool = False,
 ) -> dict:
     source_rows = store.rows("source_kind='project' AND source_id=?", (project_id,))
     if role_prefix:
@@ -107,6 +110,11 @@ def propose_mappings(
 
     proposals = []
     for source in sorted(source_rows, key=lambda row: -row["reference_count"]):
+        normalized_source_path = "/" + source["relative_path"].replace("\\", "/").lower().strip("/")
+        if not include_editor_assets and "/editor/" in normalized_source_path:
+            continue
+        if not include_unreferenced and source["reference_count"] <= 0:
+            continue
         source_visual = vector_from_row(source, "visual_vector_json")
         source_semantic = vector_from_row(source, "semantic_vector_json")
         source_name = source["sprite_name"] or PurePosixPath(source["relative_path"]).stem
@@ -120,6 +128,7 @@ def propose_mappings(
             "bg": "surface",
             "gear": "settings",
             "cog": "settings",
+            "setting": "settings",
             "store": "shop",
             "ad": "video",
             "frame": "slot",
