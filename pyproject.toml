@@ -9,6 +9,33 @@ description = "Local-first Visual RAG catalog and retrieval engine for ReVisualR
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["Pillow>=10"]
+license = { text = "Apache-2.0" }
+authors = [{ name = "HydraCore" }]
+keywords = [
+  "unity",
+  "unity3d",
+  "visual-rag",
+  "reskin",
+  "game-ui",
+  "asset-pipeline",
+  "art-automation",
+  "ai-agents",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Multimedia :: Graphics",
+  "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/orange91pku/unity-ai-visual-reskin"
+Documentation = "https://github.com/orange91pku/unity-ai-visual-reskin/tree/main/docs"
+Issues = "https://github.com/orange91pku/unity-ai-visual-reskin/issues"
+Source = "https://github.com/orange91pku/unity-ai-visual-reskin"
 
 [project.scripts]
 revisual-rag = "revisual_rag.cli:main"

@@ -4,10 +4,14 @@
   "displayName": "HydraCore Visual Reskin Adapter - PuzzleDrop",
   "description": "PuzzleDrop project knowledge for HydraCore Visual Reskin.",
   "unity": "6000.3",
+  "documentationUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/docs/PROJECT_ADAPTER_AUTHORING.md",
+  "changelogUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/LICENSE",
   "dependencies": {
     "com.hydracore.visual-reskin": "0.2.0"
   },
   "author": {
-    "name": "HydraCore"
+    "name": "HydraCore",
+    "url": "https://github.com/orange91pku/unity-ai-visual-reskin"
   }
 }

@@ -4,6 +4,9 @@
   "displayName": "HydraCore Visual Reskin",
   "description": "AI-first semantic art scanning, mapping, transaction and verification infrastructure for Unity.",
   "unity": "6000.3",
+  "documentationUrl": "https://github.com/orange91pku/unity-ai-visual-reskin#readme",
+  "changelogUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/LICENSE",
   "dependencies": {
     "com.unity.ugui": "2.0.0"
   },
@@ -15,6 +18,7 @@
     "ai"
   ],
   "author": {
-    "name": "HydraCore"
+    "name": "HydraCore",
+    "url": "https://github.com/orange91pku/unity-ai-visual-reskin"
   }
 }

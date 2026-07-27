@@ -1,0 +1,49 @@
+# Unity AI Visual Reskin
+
+> AI-first visual intelligence, local Visual RAG, semantic Theme Packs and
+> GUID-safe reskin transactions for Unity.
+
+Canonical repository:
+https://github.com/orange91pku/unity-ai-visual-reskin
+
+Related structural context engine:
+https://github.com/orange91pku/unity-ai-project-brain
+
+## Start here
+
+- README.md: public overview, quick start and safety model
+- AGENTS.md: coding-agent boundaries and validation
+- docs/ARCHITECTURE.md: Core / Theme Pack / Adapter / Visual RAG ownership
+- docs/PROJECT_BRAIN_BRIDGE.md: complete two-repository integration workflow
+- docs/VISUAL_RAG.md: catalog, retrieval and scaling
+- docs/RASTER_TRANSACTION.md: apply and rollback invariants
+- docs/THEME_PACK_AUTHORING.md: reusable theme contract
+- docs/PROJECT_ADAPTER_AUTHORING.md: project-specific integration
+- docs/PORTABILITY_TEST.md: verified Unity fixture
+
+## Machine contracts
+
+- schemas/visual-rag-project-context.schema.json
+- schemas/visual-rag-mapping-proposals.schema.json
+- schemas/visual-rag-search-result.schema.json
+- schemas/hydra-theme.schema.json
+- schemas/hydra-project.schema.json
+
+## Core implementation
+
+- revisual_rag/ingest.py
+- revisual_rag/retrieval.py
+- revisual_rag/raster_transaction.py
+- revisual_rag/store.py
+- revisual_rag/cli.py
+- Packages/com.hydracore.visual-reskin/
+
+## Invariants
+
+- proposals never authorize mutation;
+- `.meta` and Unity GUID remain unchanged during raster replacement;
+- candidates and databases stay outside Unity Assets;
+- default proposals exclude Editor and zero-reference images;
+- apply requires an exact approval ID;
+- failure after backup rolls back exactly;
+- technical and visual verdicts are separate.
