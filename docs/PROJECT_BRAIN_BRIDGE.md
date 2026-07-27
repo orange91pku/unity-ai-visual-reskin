@@ -15,6 +15,14 @@ Repositories:
 - Visual Reskin:
   <https://github.com/orange91pku/unity-ai-visual-reskin>
 
+Stable public UPM identities:
+
+- Project Brain Unity bridge: `com.heycici.project-brain`
+- Visual Reskin Core: `com.heycici.visual-reskin`
+
+The package IDs do not merge system ownership. Project Brain and Visual RAG
+still keep separate databases and exchange only versioned contracts.
+
 ## What the bridge adds
 
 Visual Reskin can index a Unity project by scanning YAML references alone. The

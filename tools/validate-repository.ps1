@@ -81,6 +81,35 @@ foreach ($expectedPackageName in $expectedPackageNames) {
 	}
 }
 
+$releaseTag = "v$releaseVersion"
+$repositoryUrl =
+	"https://github.com/orange91pku/unity-ai-visual-reskin.git"
+$expectedUpmUrls = @(
+	(
+		$repositoryUrl +
+			"?path=/Packages/com.heycici.visual-reskin#$releaseTag"
+	)
+	(
+		$repositoryUrl +
+			"?path=/Packages/com.heycici.visual-reskin.theme.300mind#$releaseTag"
+	)
+)
+$upmDocumentationFiles = @(
+	(Join-Path $repositoryRoot "README.md")
+	(Join-Path $repositoryRoot "docs/UPM_INSTALL.md")
+)
+foreach ($documentationFile in $upmDocumentationFiles) {
+	$documentationText = Get-Content -Raw -LiteralPath $documentationFile
+	foreach ($expectedUpmUrl in $expectedUpmUrls) {
+		if (-not $documentationText.Contains($expectedUpmUrl)) {
+			throw "Missing pinned UPM URL in $documentationFile`: $expectedUpmUrl"
+		}
+	}
+	if ($documentationText.Contains("com.hydracore.visual-reskin")) {
+		throw "Legacy UPM package identity found in $documentationFile."
+	}
+}
+
 $themeFiles = Get-ChildItem -LiteralPath (
 	Join-Path $repositoryRoot "Packages"
 ) -Filter "hydra-theme.json" -File -Recurse
@@ -185,6 +214,8 @@ if ($missingMeta.Count -gt 0) {
 [pscustomobject]@{
 	status = "pass"
 	releaseVersion = $releaseVersion
+	releaseTag = $releaseTag
+	corePackage = "com.heycici.visual-reskin"
 	packages = $packageRoots.Count
 	themes = $themeFiles.Count
 	projectAdapters = $projectFiles.Count
