@@ -13,6 +13,9 @@ function Write-Utf8NoBom {
 		[string]$Content
 	)
 	$encoding = New-Object System.Text.UTF8Encoding($false)
+	if (-not $Content.EndsWith("`n")) {
+		$Content += "`n"
+	}
 	[System.IO.File]::WriteAllText($Path, $Content, $encoding)
 }
 
@@ -68,5 +71,13 @@ $($importer):
 "@
 	Write-Utf8NoBom -Path $metaPath -Content $content
 }
+
+Get-ChildItem -LiteralPath $packagesRoot -Filter "*.meta" -File -Recurse |
+	ForEach-Object {
+		$content = [System.IO.File]::ReadAllText($_.FullName)
+		if (-not $content.EndsWith("`n")) {
+			Write-Utf8NoBom -Path $_.FullName -Content $content
+		}
+	}
 
 Write-Output "Unity metadata ensured."

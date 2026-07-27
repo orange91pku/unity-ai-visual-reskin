@@ -69,9 +69,56 @@ namespace HydraCore.VisualReskin.Editor
 				    binding.border.Length != 4)
 					report.Errors.Add(
 						$"{binding.semanticRole}: border must have four values.");
+				if (string.Equals(
+					    binding.imageMode,
+					    "sliced",
+					    StringComparison.OrdinalIgnoreCase) &&
+				    sprite.border.sqrMagnitude <= 0f)
+					report.Errors.Add(
+						$"{binding.semanticRole}: sliced sprite has no " +
+						"imported border.");
+				if (binding.border != null && binding.border.Length == 4)
+				{
+					var expected = GetImportedBorder(
+						path,
+						binding.border,
+						out var importScale);
+					if ((sprite.border - expected).sqrMagnitude > 0.01f)
+						report.Errors.Add(
+							$"{binding.semanticRole}: imported border " +
+							$"{sprite.border} does not match manifest {expected} " +
+							$"after texture import scale {importScale}.");
+				}
 				report.ResolvedAssets++;
 			}
 			return report;
+		}
+
+		private static Vector4 GetImportedBorder(
+			string assetPath,
+			float[] sourceBorder,
+			out Vector2 importScale)
+		{
+			importScale = Vector2.one;
+			var importer =
+				AssetImporter.GetAtPath(assetPath) as TextureImporter;
+			var importedTexture =
+				AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+			if (importer != null && importedTexture != null)
+			{
+				importer.GetSourceTextureWidthAndHeight(
+					out var sourceWidth,
+					out var sourceHeight);
+				if (sourceWidth > 0 && sourceHeight > 0)
+					importScale = new Vector2(
+						(float)importedTexture.width / sourceWidth,
+						(float)importedTexture.height / sourceHeight);
+			}
+			return new Vector4(
+				sourceBorder[0] * importScale.x,
+				sourceBorder[1] * importScale.y,
+				sourceBorder[2] * importScale.x,
+				sourceBorder[3] * importScale.y);
 		}
 
 		public static ValidationReport Validate(ProjectManifest manifest)
@@ -107,4 +154,3 @@ namespace HydraCore.VisualReskin.Editor
 		}
 	}
 }
-

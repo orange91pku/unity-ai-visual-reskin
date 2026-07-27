@@ -7,6 +7,10 @@ namespace HydraCore.VisualReskin.Editor
 	public sealed class VisualReskinWorkbench : EditorWindow
 	{
 		private Vector2 scroll;
+		private int themeIndex;
+		private int projectIndex;
+		private ReskinScanReport lastScan;
+		private ReskinTransaction lastTransaction;
 
 		[MenuItem("Tools/HydraCore/Visual Reskin Workbench")]
 		public static void Open()
@@ -20,92 +24,143 @@ namespace HydraCore.VisualReskin.Editor
 				"HydraCore Visual Reskin",
 				EditorStyles.boldLabel);
 			EditorGUILayout.HelpBox(
-				"Core discovers Theme Packs and Project Adapters. " +
-				"Validation never modifies project assets.",
+				"Select a Theme Pack and Project Adapter. Scan is read-only. " +
+				"Apply is transactional and requires explicit confirmation.",
 				MessageType.Info);
 
-			if (GUILayout.Button("Refresh and validate catalogs"))
-				Repaint();
+			var themes = ManifestCatalog.Themes()
+				.Where(item => item.IsValid)
+				.ToList();
+			var projects = ManifestCatalog.Projects()
+				.Where(item => item.IsValid)
+				.ToList();
+			if (themes.Count == 0 || projects.Count == 0)
+			{
+				EditorGUILayout.HelpBox(
+					"At least one valid Theme Pack and Project Adapter are required.",
+					MessageType.Warning);
+			}
+			else
+			{
+				themeIndex = Mathf.Clamp(themeIndex, 0, themes.Count - 1);
+				projectIndex = Mathf.Clamp(projectIndex, 0, projects.Count - 1);
+				themeIndex = EditorGUILayout.Popup(
+					"Theme",
+					themeIndex,
+					themes.Select(item => item.Manifest.displayName).ToArray());
+				projectIndex = EditorGUILayout.Popup(
+					"Project",
+					projectIndex,
+					projects.Select(item => item.Manifest.displayName).ToArray());
+				DrawActions(
+					themes[themeIndex].Manifest,
+					projects[projectIndex].Manifest);
+			}
 
 			scroll = EditorGUILayout.BeginScrollView(scroll);
-			DrawThemes();
+			DrawLastRun();
 			EditorGUILayout.Space();
-			DrawProjects();
+			DrawCatalogSummary(themes, projects);
 			EditorGUILayout.EndScrollView();
 		}
 
-		private static void DrawThemes()
+		private void DrawActions(
+			ThemeManifest theme,
+			ProjectManifest project)
 		{
-			EditorGUILayout.LabelField("Theme Packs", EditorStyles.boldLabel);
-			var themes = ManifestCatalog.Themes();
-			if (themes.Count == 0)
-				EditorGUILayout.HelpBox(
-					"No hydra-theme.json manifests found.",
-					MessageType.Warning);
-			foreach (var item in themes)
+			EditorGUILayout.BeginHorizontal();
+			if (GUILayout.Button("Scan / Dry Run"))
 			{
-				if (!item.IsValid)
+				lastTransaction = null;
+				lastScan = SemanticReskinEngine.Scan(theme, project);
+			}
+			using (new EditorGUI.DisabledScope(
+				       lastScan == null || !lastScan.passed))
+			{
+				if (GUILayout.Button("Apply + Verify"))
 				{
-					EditorGUILayout.HelpBox(
-						$"{item.AssetPath}: {item.Error}",
-						MessageType.Error);
-					continue;
+					if (EditorUtility.DisplayDialog(
+						    "Apply visual theme?",
+						    "Core will back up every target file, apply the " +
+						    "approved semantic plan, verify it, and automatically " +
+						    "rollback on failure.",
+						    "Apply",
+						    "Cancel"))
+					{
+						lastTransaction =
+							SemanticReskinEngine.Apply(theme, project);
+						lastScan = SemanticReskinEngine.Scan(theme, project);
+					}
 				}
-				var report = ManifestValidator.Validate(item.Manifest);
-				EditorGUILayout.BeginVertical("box");
+			}
+			if (GUILayout.Button("Rollback Last Apply") &&
+			    EditorUtility.DisplayDialog(
+				    "Rollback last apply?",
+				    "The latest applied transaction will be restored from its " +
+				    "hash-verified backup.",
+				    "Rollback",
+				    "Cancel"))
+				lastTransaction = SemanticReskinEngine.RollbackLastApply();
+			EditorGUILayout.EndHorizontal();
+		}
+
+		private void DrawLastRun()
+		{
+			if (lastScan != null)
+			{
 				EditorGUILayout.LabelField(
-					$"{item.Manifest.displayName}  v{item.Manifest.version}");
-				EditorGUILayout.LabelField(item.Manifest.themeId);
+					"Latest scan",
+					EditorStyles.boldLabel);
+				EditorGUILayout.HelpBox(
+					$"{(lastScan.passed ? "PASS" : "BLOCKED")} — " +
+					$"{lastScan.scenesScanned} scenes, " +
+					$"{lastScan.prefabsScanned} prefabs, " +
+					$"{lastScan.totalImages} images, " +
+					$"{lastScan.mappedImages} mapped, " +
+					$"{lastScan.alreadyAppliedImages} already applied, " +
+					$"{lastScan.missingScripts} Missing Script.",
+					lastScan.passed ? MessageType.Info : MessageType.Error);
+				foreach (var error in lastScan.errors)
+					EditorGUILayout.HelpBox(error, MessageType.Error);
+			}
+			if (lastTransaction != null)
+			{
 				EditorGUILayout.LabelField(
-					$"{report.ResolvedAssets}/{item.Manifest.assets.Length} " +
-					"bindings resolved");
-				DrawReport(report);
-				EditorGUILayout.EndVertical();
+					"Latest transaction",
+					EditorStyles.boldLabel);
+				EditorGUILayout.HelpBox(
+					$"{lastTransaction.state} — " +
+					$"{lastTransaction.appliedImages} image operations, " +
+					$"{lastTransaction.appliedPrefabs} prefabs.",
+					lastTransaction.passed
+						? MessageType.Info
+						: MessageType.Error);
 			}
 		}
 
-		private static void DrawProjects()
+		private static void DrawCatalogSummary(
+			System.Collections.Generic.IReadOnlyCollection<
+				CatalogItem<ThemeManifest>> themes,
+			System.Collections.Generic.IReadOnlyCollection<
+				CatalogItem<ProjectManifest>> projects)
 		{
+			EditorGUILayout.LabelField("Catalog", EditorStyles.boldLabel);
 			EditorGUILayout.LabelField(
-				"Project Adapters",
-				EditorStyles.boldLabel);
-			var projects = ManifestCatalog.Projects();
-			if (projects.Count == 0)
-				EditorGUILayout.HelpBox(
-					"No hydra-project.json manifests found.",
-					MessageType.Warning);
-			foreach (var item in projects)
+				$"{themes.Count} valid Theme Pack(s), " +
+				$"{projects.Count} valid Project Adapter(s).");
+			foreach (var theme in themes)
 			{
-				if (!item.IsValid)
-				{
-					EditorGUILayout.HelpBox(
-						$"{item.AssetPath}: {item.Error}",
-						MessageType.Error);
-					continue;
-				}
-				var report = ManifestValidator.Validate(item.Manifest);
-				EditorGUILayout.BeginVertical("box");
+				var validation = ManifestValidator.Validate(theme.Manifest);
 				EditorGUILayout.LabelField(
-					$"{item.Manifest.displayName}  " +
-					$"v{item.Manifest.adapterVersion}");
-				EditorGUILayout.LabelField(item.Manifest.projectId);
-				EditorGUILayout.LabelField(
-					$"{item.Manifest.productionScenes.Length} scenes, " +
-					$"{item.Manifest.detectionRules.Length} detection rules");
-				DrawReport(report);
-				EditorGUILayout.EndVertical();
+					$"Theme: {theme.Manifest.displayName} — " +
+					$"{validation.ResolvedAssets}/" +
+					$"{theme.Manifest.assets.Length} resolved");
 			}
-		}
-
-		private static void DrawReport(ValidationReport report)
-		{
-			foreach (var error in report.Errors)
-				EditorGUILayout.HelpBox(error, MessageType.Error);
-			foreach (var warning in report.Warnings)
-				EditorGUILayout.HelpBox(warning, MessageType.Warning);
-			if (report.Passed)
-				EditorGUILayout.LabelField("Contract validation: PASS");
+			foreach (var project in projects)
+				EditorGUILayout.LabelField(
+					$"Adapter: {project.Manifest.displayName} — " +
+					$"{project.Manifest.productionScenes.Length} scenes, " +
+					$"{project.Manifest.detectionRules.Length} rules");
 		}
 	}
 }
-

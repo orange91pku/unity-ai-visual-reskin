@@ -80,7 +80,12 @@ Technical and visual verdicts are stored separately.
 
 ## Compatibility
 
-The first supported baseline is Unity `6000.3` and UGUI `2.0.0`. JSON manifests
-are versioned independently of package versions. Existing fields will not be
-renamed without a schema migration.
+The first supported baseline is Unity `6000.3` and UGUI `2.0.0`. It was
+verified in a clean Unity `6000.3.10f1` fixture. JSON manifests are versioned
+independently of package versions. Existing fields will not be renamed without
+a schema migration.
 
+Theme border values are authored in source-image pixels. Validation converts
+them to imported pixels using Unity's actual texture resize ratio before
+comparing `Sprite.border`. This keeps the manifest stable when a large atlas is
+automatically reduced by `maxTextureSize`.

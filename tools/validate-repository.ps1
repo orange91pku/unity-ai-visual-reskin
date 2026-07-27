@@ -30,6 +30,10 @@ $metaFiles = Get-ChildItem -LiteralPath (
 	Join-Path $repositoryRoot "Packages"
 ) -Filter "*.meta" -File -Recurse
 foreach ($metaFile in $metaFiles) {
+	$metaBytes = [System.IO.File]::ReadAllBytes($metaFile.FullName)
+	if ($metaBytes.Length -eq 0 -or $metaBytes[$metaBytes.Length - 1] -ne 10) {
+		throw "Unity metadata must end with LF: $($metaFile.FullName)"
+	}
 	$metaText = Get-Content -Raw -LiteralPath $metaFile.FullName
 	$match = [regex]::Match(
 		$metaText,

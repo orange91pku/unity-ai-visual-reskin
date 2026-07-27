@@ -22,8 +22,9 @@ namespace HydraCore.VisualReskin
 		public string imageMode = "auto";
 		public bool preserveAspect;
 		public float scale = 1f;
+		public bool clearMaterial;
+		public bool resetTint;
 		public float[] border = Array.Empty<float>();
 		public string[] tags = Array.Empty<string>();
 	}
 }
-

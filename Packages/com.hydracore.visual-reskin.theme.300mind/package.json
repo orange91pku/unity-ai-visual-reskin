@@ -1,14 +1,13 @@
 {
   "name": "com.hydracore.visual-reskin.theme.300mind",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "HydraCore Theme Pack - 300Mind",
   "description": "Semantic 300Mind UI theme pack for HydraCore Visual Reskin.",
   "unity": "6000.3",
   "dependencies": {
-    "com.hydracore.visual-reskin": "0.1.0"
+    "com.hydracore.visual-reskin": "0.2.0"
   },
   "author": {
     "name": "HydraCore"
   }
 }
-

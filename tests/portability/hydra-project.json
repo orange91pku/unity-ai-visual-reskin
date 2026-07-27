@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "projectId": "hydracore.fixture",
+  "displayName": "ReVisualReskin Portability Fixture",
+  "adapterVersion": "0.2.0",
+  "productionScenes": [
+    "Assets/Scenes/Fixture.unity"
+  ],
+  "prefabRoots": [
+    "Assets/Fixture/Prefabs"
+  ],
+  "excludedPathSegments": [],
+  "detectionRules": [
+    {
+      "priority": 100,
+      "semanticRole": "button.purchase",
+      "sourceSpriteName": "legacy_purchase"
+    }
+  ],
+  "reviewSurfaces": [
+    {
+      "id": "fixture",
+      "scenePath": "Assets/Scenes/Fixture.unity",
+      "entryAction": "scene",
+      "width": 720,
+      "height": 1280
+    }
+  ]
+}

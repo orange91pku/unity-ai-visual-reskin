@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "themeId": "hydracore.theme.300mind",
   "displayName": "300Mind Casual UI",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "styleTags": [
     "casual",
     "mobile",
@@ -33,4 +33,3 @@
     { "semanticRole": "button.play", "assetGuid": "39e0242329775814891ef673e48ae932", "spriteName": "UI-pack_Sprite_2_16", "imageMode": "sliced", "preserveAspect": false, "scale": 1.0, "border": [50, 38, 50, 38] }
   ]
 }
-
