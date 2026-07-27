@@ -36,6 +36,11 @@ python -m revisual_rag --db .revisual/visual-rag.sqlite3 ingest-project `
 Without a context envelope the scanner falls back to read-only Unity YAML GUID
 references. That fallback has less hierarchy/component detail.
 
+When a context envelope is present it is authoritative for usage counts.
+Visual RAG stores distinct owner, fileID, hierarchy, component, property and
+evidence identities. Local database schema v2 migrates v1 usage rows without
+discarding existing records.
+
 ## Output
 
 `hydracore.visual-rag.mapping-proposals/v1` returns stable source/destination

@@ -93,6 +93,17 @@ def propose_mappings(
             "source_kind='theme' AND source_id=?",
             (theme_id,),
         )
+    usage_types: dict[str, set[str]] = {}
+    with store.connect() as connection:
+        for row in connection.execute(
+            """
+            SELECT asset_id, component_type
+            FROM project_usages
+            WHERE project_id=?
+            """,
+            (project_id,),
+        ):
+            usage_types.setdefault(row[0], set()).add(row[1])
 
     proposals = []
     for source in sorted(source_rows, key=lambda row: -row["reference_count"]):
@@ -116,8 +127,26 @@ def propose_mappings(
         source_tokens.update(
             aliases[token] for token in list(source_tokens) if token in aliases
         )
+        compact_source_name = "".join(tokenize(source_name))
+        technical_name = any(
+            token in compact_source_name
+            for token in (
+                "normalmap",
+                "noisetexture",
+                "roughness",
+                "metallic",
+                "occlusion",
+                "heightmap",
+            )
+        )
+        source_usage_types = {
+            value for value in usage_types.get(source["asset_id"], set()) if value
+        }
+        material_only = bool(source_usage_types) and source_usage_types == {"Material"}
         candidates = []
         for destination in destination_rows:
+            if technical_name or material_only:
+                continue
             role_tokens = set(tokenize(destination["semantic_role"]))
             ordered_role_tokens = tokenize(destination["semantic_role"])
             specific_role_tokens = set(ordered_role_tokens[1:])
@@ -144,6 +173,18 @@ def propose_mappings(
                 1.0 - abs(source["aspect_ratio"] - destination["aspect_ratio"]) /
                 max(0.01, source["aspect_ratio"], destination["aspect_ratio"]),
             )
+            destination_extra = json.loads(destination["extra_json"])
+            destination_role = destination["semantic_role"] or ""
+            if (
+                destination_role.startswith("icon.")
+                or destination_role == "button.close"
+            ) and aspect_ratio_score < 0.65:
+                continue
+            if (
+                destination_extra.get("imageMode") == "simple"
+                and aspect_ratio_score < 0.50
+            ):
+                continue
             score = 0.55 * visual_score + 0.25 * semantic_score + 0.20 * aspect_ratio_score
             candidates.append((score, visual_score, semantic_score, aspect_ratio_score, destination))
         if not candidates:

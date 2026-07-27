@@ -17,6 +17,7 @@ from revisual_rag.unity_meta import parse_sprite_file_ids, parse_sprite_rects
 
 GUID = "0123456789abcdef0123456789abcdef"
 PROJECT_GUID = "fedcba9876543210fedcba9876543210"
+WIDE_GUID = "11111111111111111111111111111111"
 
 
 def make_png(path: Path, color: tuple[int, int, int, int], size=(64, 64)) -> None:
@@ -118,6 +119,39 @@ class VisualRagTests(unittest.TestCase):
         matches = search(self.store, image=query_image, source_kind="theme")
         self.assertGreater(matches[0]["scores"]["visual"], 0.99)
 
+    def test_proposal_rejects_wide_banner_for_square_icon(self) -> None:
+        manifest_path = self._theme()
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["assets"].append(
+            {
+                "semanticRole": "icon.settings",
+                "assetGuid": GUID,
+                "imageMode": "simple",
+                "preserveAspect": True,
+            }
+        )
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        ingest_theme(self.store, manifest_path)
+
+        project = self._project()
+        banner = project / "Assets" / "UI" / "tx_settings.png"
+        make_png(banner, (80, 120, 220, 255), (264, 72))
+        Path(str(banner) + ".meta").write_text(
+            f"fileFormatVersion: 2\nguid: {WIDE_GUID}\n",
+            encoding="utf-8",
+        )
+        ingest_project(self.store, project, "test.project")
+        proposals = propose_mappings(
+            self.store, "test.project", "test.theme", limit=20
+        )["proposals"]
+        self.assertFalse(
+            any(
+                item["source"]["unityGuid"] == WIDE_GUID
+                and item["destination"]["semanticRole"] == "icon.settings"
+                for item in proposals
+            )
+        )
+
     def test_sprite_rect_parser(self) -> None:
         meta = self.root / "atlas.png.meta"
         meta.write_text(
@@ -150,6 +184,96 @@ TextureImporter:
     def test_database_integrity(self) -> None:
         self.store.initialize()
         self.assertTrue(self.store.integrity()["ok"])
+
+    def test_project_brain_context_preserves_distinct_hierarchy_usage(self) -> None:
+        project = self._project()
+        context = self.root / "visual-context.json"
+        context.write_text(
+            json.dumps(
+                {
+                    "schema": "hydracore.project-brain.visual-context/v1",
+                    "projectId": "test.project",
+                    "indexFingerprint": "a" * 64,
+                    "assets": [
+                        {
+                            "unityGuid": PROJECT_GUID,
+                            "relativePath": "Assets/UI/old_primary_button.png",
+                        }
+                    ],
+                    "usages": [
+                        {
+                            "unityGuid": PROJECT_GUID,
+                            "fileId": "21300000",
+                            "ownerPath": "Assets/UI/Panel.prefab",
+                            "hierarchyPath": "Canvas/Top/Button",
+                            "componentType": "Image",
+                            "propertyName": "m_Sprite",
+                            "referenceCount": 2,
+                        },
+                        {
+                            "unityGuid": PROJECT_GUID,
+                            "fileId": "21300000",
+                            "ownerPath": "Assets/UI/Panel.prefab",
+                            "hierarchyPath": "Canvas/Bottom/Button",
+                            "componentType": "Image",
+                            "propertyName": "m_Sprite",
+                            "referenceCount": 1,
+                        },
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        result = ingest_project(
+            self.store, project, "test.project", context
+        )
+        self.assertEqual("a" * 64, result["indexFingerprint"])
+        self.assertEqual(3, result["references"])
+        with self.store.connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT hierarchy_path, property_name, reference_count
+                FROM project_usages ORDER BY hierarchy_path
+                """
+            ).fetchall()
+        self.assertEqual(2, len(rows))
+        self.assertEqual(3, sum(row[2] for row in rows))
+        self.assertEqual({"m_Sprite"}, {row[1] for row in rows})
+
+    def test_migrates_usage_schema_v1_without_data_loss(self) -> None:
+        self.store.initialize()
+        with self.store.connect() as connection:
+            connection.execute(
+                "UPDATE schema_meta SET value='1' WHERE key='schema_version'"
+            )
+            connection.execute("ALTER TABLE project_usages RENAME TO project_usages_v2")
+            connection.execute(
+                """
+                CREATE TABLE project_usages (
+                    project_id TEXT NOT NULL,
+                    index_fingerprint TEXT NOT NULL,
+                    asset_id TEXT NOT NULL,
+                    unity_guid TEXT NOT NULL,
+                    file_id TEXT,
+                    owner_path TEXT NOT NULL,
+                    hierarchy_path TEXT,
+                    component_type TEXT,
+                    evidence_kind TEXT NOT NULL,
+                    reference_count INTEGER NOT NULL,
+                    PRIMARY KEY(project_id, asset_id, owner_path, file_id)
+                )
+                """
+            )
+            connection.execute("DROP TABLE project_usages_v2")
+        self.store.initialize()
+        with self.store.connect() as connection:
+            columns = {
+                row[1] for row in connection.execute(
+                    "PRAGMA table_info(project_usages)"
+                )
+            }
+        self.assertIn("property_name", columns)
+        self.assertEqual(2, self.store.integrity()["schemaVersion"])
 
 
 if __name__ == "__main__":

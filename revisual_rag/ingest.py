@@ -201,39 +201,49 @@ def ingest_project(
     if not assets_root.is_dir():
         raise ValueError(f"Unity Assets directory not found: {assets_root}")
 
+    external_context = None
+    if context_path:
+        external_context = json.loads(context_path.read_text(encoding="utf-8"))
+        if external_context.get("schema") != "hydracore.project-brain.visual-context/v1":
+            raise ValueError("Unsupported Project Brain visual context schema")
+        if external_context.get("projectId") != project_id:
+            raise ValueError(
+                "Project Brain context projectId does not match --project-id"
+            )
+
     reference_counts: Counter[tuple[str, str]] = Counter()
     usage_rows: list[dict] = []
     serialized_files = [
         path for path in assets_root.rglob("*")
         if path.is_file() and path.suffix.casefold() in SERIALIZED_EXTENSIONS
     ]
-    for owner in serialized_files:
-        if _is_excluded(owner, project_root):
-            continue
-        for guid, file_id in find_serialized_references(owner):
-            reference_counts[(guid, file_id)] += 1
-            usage_rows.append({
-                "guid": guid,
-                "fileId": file_id,
-                "ownerPath": owner.relative_to(project_root).as_posix(),
-                "hierarchyPath": None,
-                "componentType": None,
-                "evidenceKind": "unity-yaml-reference",
-            })
-
-    external_context = None
-    if context_path:
-        external_context = json.loads(context_path.read_text(encoding="utf-8"))
-        if external_context.get("schema") != "hydracore.project-brain.visual-context/v1":
-            raise ValueError("Unsupported Project Brain visual context schema")
+    if external_context is None:
+        for owner in serialized_files:
+            if _is_excluded(owner, project_root):
+                continue
+            for guid, file_id in find_serialized_references(owner):
+                reference_counts[(guid, file_id)] += 1
+                usage_rows.append({
+                    "guid": guid,
+                    "fileId": file_id,
+                    "ownerPath": owner.relative_to(project_root).as_posix(),
+                    "hierarchyPath": "",
+                    "componentType": "",
+                    "propertyName": "",
+                    "evidenceKind": "unity-yaml-reference",
+                    "referenceCount": 1,
+                })
+    else:
         for usage in external_context.get("usages", []):
             usage_rows.append({
                 "guid": usage["unityGuid"].lower(),
                 "fileId": str(usage.get("fileId", "")),
                 "ownerPath": usage["ownerPath"],
-                "hierarchyPath": usage.get("hierarchyPath"),
-                "componentType": usage.get("componentType"),
+                "hierarchyPath": usage.get("hierarchyPath") or "",
+                "componentType": usage.get("componentType") or "",
+                "propertyName": usage.get("propertyName") or "",
                 "evidenceKind": "project-brain",
+                "referenceCount": int(usage.get("referenceCount", 1)),
             })
             reference_counts[
                 (usage["unityGuid"].lower(), str(usage.get("fileId", "")))
@@ -343,7 +353,6 @@ def ingest_project(
     with store.connect() as connection:
         connection.execute("DELETE FROM project_usages WHERE project_id=?", (project_id,))
         counts: Counter[tuple] = Counter()
-        details: dict[tuple, dict] = {}
         for usage in usage_rows:
             asset_id = by_guid_file.get((usage["guid"], usage["fileId"]))
             if not asset_id:
@@ -352,20 +361,24 @@ def ingest_project(
                 continue
             key = (
                 asset_id, usage["guid"], usage["fileId"], usage["ownerPath"],
-                usage["hierarchyPath"], usage["componentType"], usage["evidenceKind"],
+                usage["hierarchyPath"], usage["componentType"],
+                usage["propertyName"], usage["evidenceKind"],
             )
-            counts[key] += 1
-            details[key] = usage
+            counts[key] += usage["referenceCount"]
         for key, count in counts.items():
-            asset_id, guid, file_id, owner, hierarchy, component, evidence = key
+            (
+                asset_id, guid, file_id, owner, hierarchy, component,
+                property_name, evidence,
+            ) = key
             connection.execute(
                 """INSERT INTO project_usages(
                     project_id,index_fingerprint,asset_id,unity_guid,file_id,owner_path,
-                    hierarchy_path,component_type,evidence_kind,reference_count
-                ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                    hierarchy_path,component_type,property_name,evidence_kind,
+                    reference_count
+                ) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
                 (
                     project_id, index_fingerprint, asset_id, guid, file_id, owner,
-                    hierarchy, component, evidence, count,
+                    hierarchy, component, property_name, evidence, count,
                 ),
             )
     return {

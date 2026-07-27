@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.1-visual-rag-bridge
+
+- Fixed Project Brain context ingestion when the same visual asset/fileID is
+  used by multiple hierarchy or component locations.
+- Upgraded the local database to schema v2 with a lossless v1 migration.
+- Preserved property name, hierarchy, component, evidence kind and aggregated
+  reference counts in the Visual RAG usage graph.
+- Made Project Brain context authoritative when supplied instead of
+  double-counting the fallback Unity YAML scan.
+- Rejected a context whose `projectId` differs from the requested project.
+
 ## 0.3.0-visual-rag
 
 - Added a separate local-first Visual RAG Python package and CLI.

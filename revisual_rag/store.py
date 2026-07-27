@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Iterator
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 DDL = """
@@ -64,13 +64,17 @@ CREATE TABLE IF NOT EXISTS project_usages (
     index_fingerprint TEXT NOT NULL,
     asset_id TEXT NOT NULL,
     unity_guid TEXT NOT NULL,
-    file_id TEXT,
+    file_id TEXT NOT NULL DEFAULT '',
     owner_path TEXT NOT NULL,
-    hierarchy_path TEXT,
-    component_type TEXT,
+    hierarchy_path TEXT NOT NULL DEFAULT '',
+    component_type TEXT NOT NULL DEFAULT '',
+    property_name TEXT NOT NULL DEFAULT '',
     evidence_kind TEXT NOT NULL,
     reference_count INTEGER NOT NULL,
-    PRIMARY KEY(project_id, asset_id, owner_path, file_id),
+    PRIMARY KEY(
+        project_id, asset_id, owner_path, file_id, hierarchy_path,
+        component_type, property_name, evidence_kind
+    ),
     FOREIGN KEY(asset_id) REFERENCES assets(asset_id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS ix_usages_project ON project_usages(project_id);
@@ -119,7 +123,60 @@ class VisualRagStore:
 
     def initialize(self) -> None:
         with self.connect() as connection:
+            meta_exists = connection.execute(
+                """
+                SELECT COUNT(*) FROM sqlite_master
+                WHERE type='table' AND name='schema_meta'
+                """
+            ).fetchone()[0]
+            existing_version = 0
+            if meta_exists:
+                row = connection.execute(
+                    "SELECT value FROM schema_meta WHERE key='schema_version'"
+                ).fetchone()
+                existing_version = int(row[0]) if row else 0
             connection.executescript(DDL)
+            if existing_version == 1:
+                connection.executescript(
+                    """
+                    ALTER TABLE project_usages RENAME TO project_usages_v1;
+                    CREATE TABLE project_usages (
+                        project_id TEXT NOT NULL,
+                        index_fingerprint TEXT NOT NULL,
+                        asset_id TEXT NOT NULL,
+                        unity_guid TEXT NOT NULL,
+                        file_id TEXT NOT NULL DEFAULT '',
+                        owner_path TEXT NOT NULL,
+                        hierarchy_path TEXT NOT NULL DEFAULT '',
+                        component_type TEXT NOT NULL DEFAULT '',
+                        property_name TEXT NOT NULL DEFAULT '',
+                        evidence_kind TEXT NOT NULL,
+                        reference_count INTEGER NOT NULL,
+                        PRIMARY KEY(
+                            project_id, asset_id, owner_path, file_id,
+                            hierarchy_path, component_type, property_name,
+                            evidence_kind
+                        ),
+                        FOREIGN KEY(asset_id)
+                            REFERENCES assets(asset_id) ON DELETE CASCADE
+                    );
+                    INSERT INTO project_usages(
+                        project_id,index_fingerprint,asset_id,unity_guid,file_id,
+                        owner_path,hierarchy_path,component_type,property_name,
+                        evidence_kind,reference_count
+                    )
+                    SELECT
+                        project_id,index_fingerprint,asset_id,unity_guid,
+                        COALESCE(file_id,''),owner_path,
+                        COALESCE(hierarchy_path,''),COALESCE(component_type,''),
+                        '',evidence_kind,reference_count
+                    FROM project_usages_v1;
+                    DROP TABLE project_usages_v1;
+                    DROP INDEX IF EXISTS ix_usages_project;
+                    CREATE INDEX ix_usages_project
+                        ON project_usages(project_id);
+                    """
+                )
             connection.execute(
                 "INSERT OR REPLACE INTO schema_meta(key, value) VALUES('schema_version', ?)",
                 (str(SCHEMA_VERSION),),
