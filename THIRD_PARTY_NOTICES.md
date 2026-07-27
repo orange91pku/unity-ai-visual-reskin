@@ -11,7 +11,7 @@ are referenced for interoperability.
 The repository contains a sample semantic Theme Pack under:
 
 ```text
-Packages/com.hydracore.visual-reskin.theme.300mind/
+Packages/com.heycici.visual-reskin.theme.300mind/
 ```
 
 The sample raster art originates from the 300Mind GUI package selected for the

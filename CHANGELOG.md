@@ -3,6 +3,7 @@
 ## 0.4.1
 
 - Added no-clone Unity Package Manager installation through tagged Git URLs.
+- Published stable UPM identities under `com.heycici.visual-reskin`.
 - Synchronized Core, Theme Pack, Project Adapter, Python package and manifest
   versions.
 - Added direct UPM URLs, project `manifest.json` examples, update/uninstall

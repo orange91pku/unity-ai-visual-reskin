@@ -41,8 +41,8 @@ Recorded result:
 
 Create a clean Unity 6000.3 project and install these local packages:
 
-- `Packages/com.hydracore.visual-reskin`
-- `Packages/com.hydracore.visual-reskin.theme.300mind`
+- `Packages/com.heycici.visual-reskin`
+- `Packages/com.heycici.visual-reskin.theme.300mind`
 - a Project Adapter, or the fixture manifest in `tests/portability`
 
 Copy `tests/portability/ReVisualReskinFixtureRunner.cs` into

@@ -82,9 +82,9 @@ No AI-generated proposal directly authorizes mutation.
 
 ```text
 Packages/
-  com.hydracore.visual-reskin/
-  com.hydracore.visual-reskin.theme.300mind/
-  com.hydracore.visual-reskin.adapter.puzzledrop/
+  com.heycici.visual-reskin/
+  com.heycici.visual-reskin.theme.300mind/
+  com.heycici.visual-reskin.adapter.puzzledrop/
 revisual_rag/          Python Visual RAG and safe raster transactions
 schemas/               Versioned bridge, proposal and manifest contracts
 tests/                 Unit and Unity portability fixtures
@@ -110,7 +110,7 @@ In Unity, open **Window → Package Management → Package Manager**, select
 **Install package from Git URL**, and paste:
 
 ```text
-https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin#v0.4.1
+https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin#v0.4.1
 ```
 
 This installs the Core Editor/runtime package pinned to release `v0.4.1`.
@@ -118,7 +118,7 @@ This installs the Core Editor/runtime package pinned to release `v0.4.1`.
 Install the optional sample Theme Pack after Core:
 
 ```text
-https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin.theme.300mind#v0.4.1
+https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin.theme.300mind#v0.4.1
 ```
 
 Teams can pin both dependencies directly in `Packages/manifest.json`:
@@ -126,8 +126,8 @@ Teams can pin both dependencies directly in `Packages/manifest.json`:
 ```json
 {
   "dependencies": {
-    "com.hydracore.visual-reskin": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin#v0.4.1",
-    "com.hydracore.visual-reskin.theme.300mind": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin.theme.300mind#v0.4.1"
+    "com.heycici.visual-reskin": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin#v0.4.1",
+    "com.heycici.visual-reskin.theme.300mind": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin.theme.300mind#v0.4.1"
   }
 }
 ```
@@ -181,7 +181,7 @@ python -m revisual_rag --db .revisual/visual-rag.sqlite3 materialize-raster \
   --proposal-file .revisual/mapping-proposals.json \
   --proposal-id vrmap_EXACT_ID \
   --project-root /absolute/path/to/UnityProject \
-  --theme-root Packages/com.hydracore.visual-reskin.theme.300mind \
+  --theme-root Packages/com.heycici.visual-reskin.theme.300mind \
   --output-dir .revisual/candidates
 ```
 

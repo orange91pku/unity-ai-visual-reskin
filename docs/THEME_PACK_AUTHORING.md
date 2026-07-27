@@ -3,7 +3,7 @@
 ## Minimum package
 
 ```text
-com.hydracore.visual-reskin.theme.<id>/
+com.heycici.visual-reskin.theme.<id>/
   package.json
   Theme/hydra-theme.json
   Art/
@@ -55,4 +55,3 @@ Each binding will eventually include:
 - quality score and reviewer evidence;
 - compatible and incompatible semantic roles;
 - license/source provenance.
-

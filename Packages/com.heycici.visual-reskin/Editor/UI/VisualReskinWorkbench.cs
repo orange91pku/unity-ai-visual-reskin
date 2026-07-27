@@ -12,7 +12,7 @@ namespace HydraCore.VisualReskin.Editor
 		private ReskinScanReport lastScan;
 		private ReskinTransaction lastTransaction;
 
-		[MenuItem("Tools/HydraCore/Visual Reskin Workbench")]
+		[MenuItem("Tools/HeyCici/Visual Reskin Workbench")]
 		public static void Open()
 		{
 			GetWindow<VisualReskinWorkbench>("Visual Reskin");
@@ -21,7 +21,7 @@ namespace HydraCore.VisualReskin.Editor
 		private void OnGUI()
 		{
 			EditorGUILayout.LabelField(
-				"HydraCore Visual Reskin",
+				"Unity AI Visual Reskin",
 				EditorStyles.boldLabel);
 			EditorGUILayout.HelpBox(
 				"Select a Theme Pack and Project Adapter. Scan is read-only. " +

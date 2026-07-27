@@ -17,13 +17,13 @@ project.
 3. Paste the Core URL and select **Install**:
 
    ```text
-   https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin#v0.4.1
+   https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin#v0.4.1
    ```
 
 4. To use the bundled example art, install the Theme Pack after Core:
 
    ```text
-   https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin.theme.300mind#v0.4.1
+   https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin.theme.300mind#v0.4.1
    ```
 
 The `#v0.4.1` revision pins a reproducible release. The `?path=` query selects
@@ -36,8 +36,8 @@ Teams can commit both direct dependencies to their Unity project:
 ```json
 {
   "dependencies": {
-    "com.hydracore.visual-reskin": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin#v0.4.1",
-    "com.hydracore.visual-reskin.theme.300mind": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin.theme.300mind#v0.4.1"
+    "com.heycici.visual-reskin": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin#v0.4.1",
+    "com.heycici.visual-reskin.theme.300mind": "https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin.theme.300mind#v0.4.1"
   }
 }
 ```
@@ -49,7 +49,7 @@ the team and CI resolve the same package revision.
 
 After Unity finishes compiling, open:
 
-**Tools > HydraCore > Visual Reskin Workbench**
+**Tools > HeyCici > Visual Reskin Workbench**
 
 Core discovery and validation are available immediately. A Theme Pack supplies
 reusable semantic art. A Project Adapter supplies project-specific scene,
@@ -65,7 +65,7 @@ games. Create a separate adapter for each project by following
 If you are working on PuzzleDrop, its pinned Git URL is:
 
 ```text
-https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.hydracore.visual-reskin.adapter.puzzledrop#v0.4.1
+https://github.com/orange91pku/unity-ai-visual-reskin.git?path=/Packages/com.heycici.visual-reskin.adapter.puzzledrop#v0.4.1
 ```
 
 ## Update
@@ -120,4 +120,3 @@ python -m pip install \
 
 Unity Package Manager does not install Python. The Unity package and Visual RAG
 service remain separate by design.
-

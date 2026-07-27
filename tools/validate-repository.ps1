@@ -51,6 +51,9 @@ foreach ($packageRoot in $packageRoots) {
 		throw "Missing package.json: $($packageRoot.FullName)"
 	}
 	$package = Get-Content -Raw -LiteralPath $packagePath | ConvertFrom-Json
+	if ($package.name -ne $packageRoot.Name) {
+		throw "Package folder and package name differ: $($packageRoot.Name)."
+	}
 	if ($packageNames.ContainsKey($package.name)) {
 		throw "Duplicate package name: $($package.name)"
 	}
@@ -59,12 +62,23 @@ foreach ($packageRoot in $packageRoots) {
 	}
 	if (
 		$null -ne $package.dependencies -and
-		$null -ne $package.dependencies."com.hydracore.visual-reskin" -and
-		$package.dependencies."com.hydracore.visual-reskin" -ne $releaseVersion
+		$null -ne $package.dependencies."com.heycici.visual-reskin" -and
+		$package.dependencies."com.heycici.visual-reskin" -ne $releaseVersion
 	) {
 		throw "Package $($package.name) must depend on Core $releaseVersion."
 	}
 	$packageNames[$package.name] = $true
+}
+
+$expectedPackageNames = @(
+	"com.heycici.visual-reskin",
+	"com.heycici.visual-reskin.theme.300mind",
+	"com.heycici.visual-reskin.adapter.puzzledrop"
+)
+foreach ($expectedPackageName in $expectedPackageNames) {
+	if (-not $packageNames.ContainsKey($expectedPackageName)) {
+		throw "Missing expected UPM package: $expectedPackageName"
+	}
 }
 
 $themeFiles = Get-ChildItem -LiteralPath (

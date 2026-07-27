@@ -128,7 +128,7 @@ The repository includes one sample Theme Pack:
 python -m revisual_rag \
   --db /absolute/path/to/output/visual-rag.sqlite3 \
   ingest-theme \
-  --manifest Packages/com.hydracore.visual-reskin.theme.300mind/Theme/hydra-theme.json
+  --manifest Packages/com.heycici.visual-reskin.theme.300mind/Theme/hydra-theme.json
 ```
 
 For a real production reskin, build a Theme Pack whose semantic-role coverage
@@ -205,7 +205,7 @@ python -m revisual_rag \
   --proposal-file /absolute/path/to/output/mapping-proposals.json \
   --proposal-id vrmap_EXACT_ID \
   --project-root /absolute/path/to/my-unity-game \
-  --theme-root Packages/com.hydracore.visual-reskin.theme.300mind \
+  --theme-root Packages/com.heycici.visual-reskin.theme.300mind \
   --output-dir /absolute/path/to/output/candidates
 ```
 

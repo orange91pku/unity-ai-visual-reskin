@@ -37,7 +37,7 @@ https://github.com/orange91pku/unity-ai-project-brain
 - revisual_rag/raster_transaction.py
 - revisual_rag/store.py
 - revisual_rag/cli.py
-- Packages/com.hydracore.visual-reskin/
+- Packages/com.heycici.visual-reskin/
 
 ## Invariants
 

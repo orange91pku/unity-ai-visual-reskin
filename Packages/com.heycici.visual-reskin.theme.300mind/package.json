@@ -1,17 +1,17 @@
 {
-  "name": "com.hydracore.visual-reskin.theme.300mind",
+  "name": "com.heycici.visual-reskin.theme.300mind",
   "version": "0.4.1",
-  "displayName": "HydraCore Theme Pack - 300Mind",
-  "description": "Semantic 300Mind UI theme pack for HydraCore Visual Reskin.",
+  "displayName": "Unity AI Visual Reskin Theme - 300Mind",
+  "description": "Semantic 300Mind UI theme pack for Unity AI Visual Reskin.",
   "unity": "6000.3",
   "documentationUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/docs/THEME_PACK_AUTHORING.md",
   "changelogUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/CHANGELOG.md",
   "licensesUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/THIRD_PARTY_NOTICES.md",
   "dependencies": {
-    "com.hydracore.visual-reskin": "0.4.1"
+    "com.heycici.visual-reskin": "0.4.1"
   },
   "author": {
-    "name": "HydraCore",
+    "name": "HeyCici",
     "url": "https://github.com/orange91pku/unity-ai-visual-reskin"
   }
 }

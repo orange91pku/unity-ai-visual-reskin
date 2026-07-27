@@ -1,17 +1,17 @@
 {
-  "name": "com.hydracore.visual-reskin.adapter.puzzledrop",
+  "name": "com.heycici.visual-reskin.adapter.puzzledrop",
   "version": "0.4.1",
-  "displayName": "HydraCore Visual Reskin Adapter - PuzzleDrop",
-  "description": "PuzzleDrop project knowledge for HydraCore Visual Reskin.",
+  "displayName": "Unity AI Visual Reskin Adapter - PuzzleDrop",
+  "description": "PuzzleDrop project knowledge for Unity AI Visual Reskin.",
   "unity": "6000.3",
   "documentationUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/docs/PROJECT_ADAPTER_AUTHORING.md",
   "changelogUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/CHANGELOG.md",
   "licensesUrl": "https://github.com/orange91pku/unity-ai-visual-reskin/blob/main/LICENSE",
   "dependencies": {
-    "com.hydracore.visual-reskin": "0.4.1"
+    "com.heycici.visual-reskin": "0.4.1"
   },
   "author": {
-    "name": "HydraCore",
+    "name": "HeyCici",
     "url": "https://github.com/orange91pku/unity-ai-visual-reskin"
   }
 }
